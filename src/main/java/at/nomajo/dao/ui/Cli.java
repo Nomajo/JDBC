@@ -7,7 +7,9 @@ import at.nomajo.dao.domain.CourseType;
 import at.nomajo.dao.domain.InvalidValueException;
 
 import javax.swing.text.html.Option;
+import javax.xml.crypto.Data;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -39,6 +41,15 @@ public class Cli {
                 case "4":
                     updateCourseDetails();
                     break;
+                case "5":
+                    deleteCourse();
+                    break;
+                case "6":
+                    courseSearch();
+                    break;
+                case "7":
+                    runningCourses();
+                    break;
                 case "x":
                     System.out.println("Auf Wiedersehen!");
                     break;
@@ -48,6 +59,51 @@ public class Cli {
             }
         }
         scan.close();
+    }
+
+    private void runningCourses() {
+        System.out.println("Aktuell laufende Kurse: ");
+        List<Course> list;
+        try {
+            list = repo.findAllRunningCourses();
+            for (Course course : list) {
+                System.out.println(course);
+            }
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler bei Kurs-Anzeige für laufende Kurse: " + databaseException.getMessage());
+        } catch (Exception exception) {
+            System.out.println("Unbekannter Fehler bei Kurs-Anzeige für laufende Kurse: " + exception.getMessage());
+        }
+    }
+
+    private void courseSearch() {
+        System.out.println("Geben Sie einen Suchbegriff an!");
+        String searchString = scan.nextLine();
+        List<Course> courseList;
+
+        try {
+            courseList = repo.findAllCoursesByNameOrDescription(searchString);
+            for(Course course : courseList) {
+                System.out.println(course);
+            }
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler bei der Kurssuche: " + databaseException.getMessage());
+        } catch (Exception exception) {
+            System.out.println("Unbekannter Fehler bei der Kurssuche: " + exception.getMessage());
+        }
+    }
+
+    private void deleteCourse() {
+        System.out.println("Welchen Kurs möchten Sie löschen? Bitte ID angeben:");
+        Long courseIdToDelete = Long.parseLong(scan.nextLine());
+
+        try {
+            repo.deleteById(courseIdToDelete);
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler beim Löschen: " + databaseException.getMessage());
+        } catch (Exception e) {
+            System.out.println("Unbekannter Fehler beim Löschen: " + e.getMessage());
+        }
     }
 
     private void updateCourseDetails() {
@@ -98,8 +154,14 @@ public class Cli {
                         () -> System.out.println("Kurs konnte nicht aktualisiert werden!")
                 );
             }
+        } catch(IllegalArgumentException illegalArgumentException) {
+            System.out.println("Eingabefehler: " + illegalArgumentException.getMessage());
+        } catch(InvalidValueException invalidValueException) {
+            System.out.println("Kursdaten nicht korrekt angeben: " + invalidValueException.getMessage());
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler beim Einfügen: " + databaseException.getMessage());
         } catch (Exception exception) {
-            System.out.println("Unbekannter Fehler bei Kursupdate: " + exception.getMessage());
+            System.out.println("Unbekannter Fehler beim Einfügen: " + exception.getMessage());
         }
     }
 
@@ -185,7 +247,8 @@ public class Cli {
     private void showMenue() {
         System.out.println("---------------- KURSMANAGEMENT ----------------");
         System.out.println("(1) - Kurs eingeben \t (2) Alle Kurse anzeigen \t (3) Kursdetails anzeigen");
-        System.out.println("(4) - Kurs eingeben \t (-) xxx \t (-) xxxx");
+        System.out.println("(4) - Kurs eingeben \t (5) Kurs löschen \t (6) Kurssuche");
+        System.out.println("(7) - Laufende Kurse \t (-) --------- \t (-) --------");
         System.out.println("(x) - ENDE");
     }
 
