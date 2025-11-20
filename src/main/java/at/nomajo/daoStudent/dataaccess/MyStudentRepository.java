@@ -7,7 +7,7 @@ import at.nomajo.daoStudent.domain.Student;
 public interface MyStudentRepository extends BaseRepository<Student, Long> {
     List<Student> findStudentbyFirstName(String firstName);
 
-    Student findStudentbyID(Long id);
+    List<Student> findStudentbyLastName(String lastName);
 
     List<Student> findStudentbyBirthdate(Date birthdate);
 }

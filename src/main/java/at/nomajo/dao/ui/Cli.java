@@ -247,7 +247,7 @@ public class Cli {
     private void showMenue() {
         System.out.println("---------------- KURSMANAGEMENT ----------------");
         System.out.println("(1) - Kurs eingeben \t (2) Alle Kurse anzeigen \t (3) Kursdetails anzeigen");
-        System.out.println("(4) - Kurs eingeben \t (5) Kurs löschen \t (6) Kurssuche");
+        System.out.println("(4) - Kursdetails ändern \t (5) Kurs löschen \t (6) Kurssuche");
         System.out.println("(7) - Laufende Kurse \t (-) --------- \t (-) --------");
         System.out.println("(x) - ENDE");
     }

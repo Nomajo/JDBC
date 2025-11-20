@@ -18,28 +18,85 @@ public class MySqlStudentRepository implements MyStudentRepository {
 
     @Override
     public List<Student> findStudentbyFirstName(String firstName) {
-        return List.of();
+        try {
+            String sql = "SELECT * FROM `students` WHERE LOWER(`firstname`) LIKE LOWER(?)";
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setString(1, "%" + firstName + "%");
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            ArrayList<Student> studentList = new ArrayList<>();
+            while(resultSet.next()) {
+                studentList.add(new Student(
+                        resultSet.getLong("id"),
+                        resultSet.getString("firstname"),
+                        resultSet.getString("lastname"),
+                        resultSet.getDate("birthdate")
+                    )
+                );
+            }
+            return studentList;
+        } catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
     }
 
     @Override
-    public Student findStudentbyID(Long id) {
-        return null;
+    public List<Student> findStudentbyLastName(String lastName) {
+        try {
+            String sql = "SELECT * FROM `students` WHERE LOWER(`lastname`) LIKE LOWER(?)";
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setString(1, "%" + lastName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            ArrayList<Student> studentList = new ArrayList<>();
+            while(resultSet.next()) {
+                studentList.add(new Student(
+                                resultSet.getLong("id"),
+                                resultSet.getString("firstname"),
+                                resultSet.getString("lastname"),
+                                resultSet.getDate("birthdate")
+                        )
+                );
+            }
+            return studentList;
+        } catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
     }
 
     @Override
     public List<Student> findStudentbyBirthdate(Date birthdate) {
-        return List.of();
+        try {
+            String sql = "SELECT * FROM `student` WHERE LOWER(`birthdate`) LIKE LOWER(?)";
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setString(1, "%" + birthdate);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            ArrayList<Student> studentList = new ArrayList<>();
+            while(resultSet.next()) {
+                studentList.add(new Student(
+                                resultSet.getLong("id"),
+                                resultSet.getString("firstname"),
+                                resultSet.getString("lastname"),
+                                resultSet.getDate("birthdate")
+                        )
+                );
+            }
+            return studentList;
+        } catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
     }
 
     @Override
     public Optional<Student> insert(Student entity) {
         Assert.notNull(entity);
         try {
-            String sql = "INSERT INTO `students` (`vorname`, `nachname`, `birthdate`) VALUES (?,?,?)";
+            String sql = "INSERT INTO `students` (`firstname`, `lastname`, `birthdate`) VALUES (?,?,?)";
             PreparedStatement preparedStatement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, entity.getVorname());
-            preparedStatement.setString(2, entity.getNachname());
-            preparedStatement.setDate(3, entity.getGeburtsdatum());
+            preparedStatement.setString(1, entity.getFirstName());
+            preparedStatement.setString(2, entity.getLastName());
+            preparedStatement.setDate(3, entity.getBirthdate());
 
             int affectedRows = preparedStatement.executeUpdate();
 
@@ -73,8 +130,8 @@ public class MySqlStudentRepository implements MyStudentRepository {
                 resultSet.next();
                 Student student = new Student(
                         resultSet.getLong("id"),
-                        resultSet.getString("vorname"),
-                        resultSet.getString("nachname"),
+                        resultSet.getString("firstname"),
+                        resultSet.getString("lastname"),
                         resultSet.getDate("birthdate")
                 );
                 return Optional.of(student);
@@ -87,13 +144,13 @@ public class MySqlStudentRepository implements MyStudentRepository {
 
     private int countStudentsInDbWithId(Long id) {
         try {
-            String countSql = "SELECT COUNT(*) FROM `courses` WHERE `id`=?";
+            String countSql = "SELECT COUNT(*) FROM `students` WHERE `id`=?";
             PreparedStatement preparedStatement = con.prepareStatement(countSql);
             preparedStatement.setLong(1, id);
             ResultSet resultSetCount = preparedStatement.executeQuery();
             resultSetCount.next();
-            int courseCount = resultSetCount.getInt(1);
-            return courseCount;
+            int studentCount = resultSetCount.getInt(1);
+            return studentCount;
         } catch (SQLException sqlException) {
             throw new DatabaseException(sqlException.getMessage());
         }
@@ -108,14 +165,11 @@ public class MySqlStudentRepository implements MyStudentRepository {
             ArrayList<Student> courseList = new ArrayList<>();
 
             while(resultSet.next()) {
-                courseList.add(new Course(
+                courseList.add(new Student(
                         resultSet.getLong("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("description"),
-                        resultSet.getInt("hours"),
-                        resultSet.getDate("beginDate"),
-                        resultSet.getDate("endDate"),
-                        CourseType.valueOf(resultSet.getString("coursetype"))
+                        resultSet.getString("firstname"),
+                        resultSet.getString("lastname"),
+                        resultSet.getDate("birthdate")
                     )
                 );
             }
@@ -129,20 +183,16 @@ public class MySqlStudentRepository implements MyStudentRepository {
     public Optional<Student> update(Student entity) {
         Assert.notNull(entity);
 
-        String sql = "UPDATE `courses` SET `name`=?, `description`=?, `hours`=?, `begindate`=?, `enddate`=?, `coursetype`=? WHERE `courses`.`id`=?";
+        String sql = "UPDATE `students` SET `firstname`=?, `lastname`=?, `birthdate`=? WHERE `students`.`id`=?";
 
         if(countStudentsInDbWithId(entity.getId()) == 0) {
             return Optional.empty();
         } else {
             try {
                 PreparedStatement preparedStatement = con.prepareStatement(sql);
-                preparedStatement.setString(1, entity.getName());
-                preparedStatement.setString(2, entity.getDescription());
-                preparedStatement.setInt(3, entity.getHours());
-                preparedStatement.setDate(4, entity.getBeginDate());
-                preparedStatement.setDate(5, entity.getEndDate());
-                preparedStatement.setString(6, entity.getCourseType().toString());
-                preparedStatement.setLong(7, entity.getId());
+                preparedStatement.setString(1, entity.getFirstName());
+                preparedStatement.setString(2, entity.getLastName());
+                preparedStatement.setDate(3, entity.getBirthdate());
 
                 int affectedRows = preparedStatement.executeUpdate();
 
@@ -161,7 +211,7 @@ public class MySqlStudentRepository implements MyStudentRepository {
     @Override
     public void deleteById(Long id) {
         Assert.notNull(id);
-        String sql = "DELETE FROM `courses` WHERE `id`=?";
+        String sql = "DELETE FROM `students` WHERE `id`=?";
         try {
             if(countStudentsInDbWithId(id) == 1) {
                 PreparedStatement preparedStatement = con.prepareStatement(sql);

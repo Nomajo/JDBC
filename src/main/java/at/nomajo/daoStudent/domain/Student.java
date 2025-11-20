@@ -5,52 +5,52 @@ import at.nomajo.dao.domain.InvalidValueException;
 import java.sql.Date;
 
 public class Student extends BaseEntity {
-    private String vorname;
-    private String nachname;
-    private Date geburtsdatum;
+    private String firstName;
+    private String lastName;
+    private Date birthdate;
 
-    public Student(Long id, String vorname, String nachname, Date geburtsdatum) throws InvalidValueException {
+    public Student(Long id, String firstname, String lastName, Date birthdate) throws InvalidValueException {
         super(id);
-        setNachname(nachname);
-        setVorname(vorname);
-        setGeburtsdatum(geburtsdatum);
+        setLastName(lastName);
+        setFirstName(firstname);
+        setBirthdate(birthdate);
     }
 
-    public Student(String vorname, String nachname, Date geburtsdatum) throws InvalidValueException {
-        this(null, vorname, nachname, geburtsdatum);
+    public Student(String vorname, String lastName, Date birthdate) throws InvalidValueException {
+        this(null, vorname, lastName, birthdate);
     }
 
-    public String getVorname() {
-        return vorname;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setVorname(String vorname) {
-        if (vorname != null && vorname.length() > 1) {
-            this.vorname = vorname;
+    public void setFirstName(String firstName) {
+        if (firstName != null && firstName.length() > 1) {
+            this.firstName = firstName;
         } else {
             throw new InvalidValueException("Vorname muss mindestens 2 Zeichen lang sein!");
         }
     }
 
-    public String getNachname() {
-        return nachname;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setNachname(String nachname) {
-        if (nachname != null && nachname.length() > 1) {
-            this.nachname = nachname;
+    public void setLastName(String lastName) {
+        if (lastName != null && lastName.length() > 1) {
+            this.lastName = lastName;
         } else {
             throw new InvalidValueException("Nachname muss mindestens 2 Zeichen lang sein!");
         }
     }
 
-    public Date getGeburtsdatum() {
-        return geburtsdatum;
+    public Date getBirthdate() {
+        return birthdate;
     }
 
-    public void setGeburtsdatum(Date geburtsdatum) {
-        if(geburtsdatum != null && geburtsdatum.before(new Date(System.currentTimeMillis()))) {
-            this.geburtsdatum = geburtsdatum;
+    public void setBirthdate(Date birthdate) {
+        if(birthdate != null && birthdate.before(new Date(System.currentTimeMillis()))) {
+            this.birthdate = birthdate;
         } else {
             throw new InvalidValueException("Geburtsdatum darf nicht null oder heute sein!");
         }
@@ -60,9 +60,9 @@ public class Student extends BaseEntity {
     public String toString() {
         return "Student{" +
                 "id='" + this.getId() + '\'' +
-                ", vorname='" + vorname + '\'' +
-                ", nachname='" + nachname + '\'' +
-                ", geburtsdatum=" + geburtsdatum +
+                ", firstname='" + firstName + '\'' +
+                ", lastname='" + lastName + '\'' +
+                ", birthdate=" + birthdate +
                 '}';
     }
 }
