@@ -183,16 +183,18 @@ public class MySqlStudentRepository implements MyStudentRepository {
     public Optional<Student> update(Student entity) {
         Assert.notNull(entity);
 
-        String sql = "UPDATE `students` SET `firstname`=?, `lastname`=?, `birthdate`=? WHERE `students`.`id`=?";
+        String sql = "UPDATE `students` SET `id`=?, `firstname`=?, `lastname`=?, `birthdate`=? WHERE `students`.`id`=?";
 
         if(countStudentsInDbWithId(entity.getId()) == 0) {
             return Optional.empty();
         } else {
             try {
                 PreparedStatement preparedStatement = con.prepareStatement(sql);
-                preparedStatement.setString(1, entity.getFirstName());
-                preparedStatement.setString(2, entity.getLastName());
-                preparedStatement.setDate(3, entity.getBirthdate());
+                preparedStatement.setLong(1, entity.getId());
+                preparedStatement.setString(2, entity.getFirstName());
+                preparedStatement.setString(3, entity.getLastName());
+                preparedStatement.setDate(4, entity.getBirthdate());
+                preparedStatement.setLong(5, entity.getId());
 
                 int affectedRows = preparedStatement.executeUpdate();
 

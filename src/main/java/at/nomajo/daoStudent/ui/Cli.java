@@ -135,7 +135,7 @@ public class Cli {
             } else {
                 Student student = studentOptional.get();
 
-                System.out.println("Änderungen für folgenen Student: ");
+                System.out.println("Änderungen für folgenden Student: ");
                 System.out.println(student);
 
                 String firstname, lastname, birthdate;
@@ -165,7 +165,7 @@ public class Cli {
         } catch(IllegalArgumentException illegalArgumentException) {
             System.out.println("Eingabefehler: " + illegalArgumentException.getMessage());
         } catch(InvalidValueException invalidValueException) {
-            System.out.println("Kursdaten nicht korrekt angeben: " + invalidValueException.getMessage());
+            System.out.println("Studentdaten nicht korrekt angeben: " + invalidValueException.getMessage());
         } catch (DatabaseException databaseException) {
             System.out.println("Datenbankfehler beim Einfügen: " + databaseException.getMessage());
         } catch (Exception exception) {
@@ -185,16 +185,16 @@ public class Cli {
             System.out.println("Nachname");
             lastName = scan.nextLine();
             if(lastName.equals("")) throw new IllegalArgumentException("Eingabe darf nicht leer sein!");
-            System.out.println("Startdatum (YYYY-MM-DD): ");
+            System.out.println("Geburtsdatum (YYYY-MM-DD): ");
             birthdate = Date.valueOf(scan.nextLine());
 
-            Optional<Student> optionalCourse = repo.insert(
+            Optional<Student> optionalStudent = repo.insert(
                     new Student(firstName, lastName, birthdate)
             );
-            if(optionalCourse.isPresent()) {
-                System.out.println("Kurs angelegt: " + optionalCourse.get());
+            if(optionalStudent.isPresent()) {
+                System.out.println("Student angelegt: " + optionalStudent.get());
             } else {
-                System.out.println("Kurs konnte nicht angelegt werden!");
+                System.out.println("Student konnte nicht angelegt werden!");
             }
 
         } catch(IllegalArgumentException illegalArgumentException) {
