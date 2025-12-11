@@ -1,8 +1,10 @@
 package at.nomajo.daoStudent.dataaccess;
 
+import at.nomajo.dao.domain.InvalidValueException;
 import at.nomajo.daoStudent.domain.Student;
 import at.nomajo.daoStudent.util.Assert;
 
+import javax.swing.text.html.Option;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +69,7 @@ public class MySqlStudentRepository implements MyStudentRepository {
     @Override
     public List<Student> findStudentbyBirthdate(Date birthdate) {
         try {
-            String sql = "SELECT * FROM `student` WHERE LOWER(`birthdate`) LIKE LOWER(?)";
+            String sql = "SELECT * FROM `students` WHERE LOWER(`birthdate`) LIKE LOWER(?)";
             PreparedStatement preparedStatement = con.prepareStatement(sql);
             preparedStatement.setString(1, "%" + birthdate);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -201,6 +203,7 @@ public class MySqlStudentRepository implements MyStudentRepository {
                 if(affectedRows == 0) {
                     return Optional.empty();
                 }
+
                 return this.getById(entity.getId());
 
             } catch (SQLException sqlException) {
@@ -222,6 +225,65 @@ public class MySqlStudentRepository implements MyStudentRepository {
             }
         } catch(SQLException sqlException) {
             throw new DatabaseException(sqlException.getMessage());
+        }
+    }
+
+    public List<Student> getAll2() {
+        ArrayList<Student> studentList = new ArrayList<>();
+        String sql = "SELECT * FROM `students`";
+
+        try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+            ResultSet rs = preparedStatement.executeQuery();
+            while(rs.next()) {
+                studentList.add(new Student(
+                        rs.getLong("id"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName"),
+                        rs.getDate("birthdate")
+                ));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return studentList;
+    }
+
+    public Optional<Student> insertTest(Student entity) {
+        String sql = "INSERT INTO students (firstName, lastName, birthdate) VALUES (?, ?, ?)";
+        try (PreparedStatement preparedStatement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, entity.getFirstName());
+            preparedStatement.setString(2, entity.getLastName());
+            preparedStatement.setDate(3, entity.getBirthdate());
+
+            int affectedRows = preparedStatement.executeUpdate();
+
+            if(affectedRows == 0) {
+                return Optional.empty();
+            }
+
+            ResultSet keys = preparedStatement.getGeneratedKeys();
+            if(keys.next()) {
+                return getById(keys.getLong(1));
+            } else {
+                return Optional.empty();
+            }
+
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+
+    public void deleteByID(Long id) {
+        String sql = "DELETE * FROM `students` WHERE `id`=?";
+        try(PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+            if(countStudentsInDbWithId())
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new InvalidValueException("Test");
         }
     }
 }
